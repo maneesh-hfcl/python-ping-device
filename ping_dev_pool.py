@@ -11,7 +11,7 @@ import sys
 
 #q = Queue()
 
-def getPingAllIpPort(q: Queue):
+def getPingAllIpPort(q: Queue, event: Event):
     pool = ThreadPoolExecutor(5)    
     print("calling the function")
     str_file_list = []
@@ -26,25 +26,24 @@ def getPingAllIpPort(q: Queue):
         cserver = CServer(machineip)
         inplist_arr.append(cserver)
 
-    event = Event()
     st = time.time()
     ithrd = 0
     t = Thread(target=itrIPList, args=(pool, inplist_arr, q, event,))
     t.start()    
     while True:
         if keyboard.is_pressed('q'):
-            print("you press the keys")
+            print("you press the keys to shutdown")
             event.set()
             break
-        if q.qsize() > 0:
-            print(q.get())
+       # if q.qsize() > 0:
+       #     print(q.get())
     print(time.time() - st)
 
 
 def connSocket(pool, q, event, cserver):
     #while True:
     if event.is_set():
-        print("Event shutdown ")
+        print("Event shutdown calling from web")
         pool.shutdown()
         return
 
@@ -96,5 +95,6 @@ def itrIPList(pool, inplist_arr, q, event):
 if __name__ == "__main__":
     print("Started pinging device with port")
     q = Queue()
-    getPingAllIpPort(q)
+    e = Event()
+    getPingAllIpPort(q, e)
 

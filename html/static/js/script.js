@@ -1,12 +1,17 @@
 const sse_url = "http://127.0.0.1:8088/sse-ping"
+const sse_url_dev_port = "http://127.0.0.1:8088/sse-ping-device"
+
 var evtSource;
 
 $(document).ready(() => {
    // startPing()
 })
 
-const startPing = ()=>{
-    evtSource = new EventSource(sse_url);
+const pingDevice = ()=> startPing(sse_url)
+const pingDevicePort = ()=> startPing(sse_url_dev_port)
+
+const startPing = (url)=>{
+    evtSource = new EventSource(url);
     evtSource.onmessage = (event)=>{
         let jsonData = JSON.parse(event.data)
         jsonData.status = jsonData.status == "Active"?"Connected":"Disconnected";
@@ -16,9 +21,16 @@ const startPing = ()=>{
   //  alert("Going to start the ping")
 }
 
-const stopPing = ()=>{
+const stopPing = async()=>{
     evtSource.close()
+    let evnt_stop_url = "http://127.0.0.1:8088/stoppingdev"
+    let myobject = await fetch(evnt_stop_url)
+    let mytext = await myobject.text()
+    console.log(mytext)
 }
+
+const stopPingDevice = ()=> stopPing()
+
 
 const passData = (jsonData)=>{
     let tbldata = $("#tblData")

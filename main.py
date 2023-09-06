@@ -9,7 +9,7 @@ from threading import Thread
 from Model.cserver import CServer
 from fastapi.middleware.cors import CORSMiddleware
 import json
-
+from threading import Event
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -28,6 +28,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+eventping = Event()
+eventdevport = Event()
 
 @app.get("/")
 async def read_root():
@@ -62,7 +65,7 @@ async def read_htmlping(request: Request):
 @app.get("/sse-ping-device")
 async def pingdevice():
     qdev = Queue()
-    pingthrd = Thread(target=getPingAllIpPort, args=(qdev,), name="sse-ping-device")
+    pingthrd = Thread(target=getPingAllIpPort, args=(qdev, eventdevport), name="sse-ping-device")
     pingthrd.start()
     print("calling sse-ping-device")
     generatePing = getPingData(qdev)
@@ -73,6 +76,11 @@ async def read_htmlpingdevport(request: Request):
     res = {"request": request}
     return templates.TemplateResponse("pingdevport.html",res)
 
+@app.get("/stoppingdev")
+async def stoppingdev():
+    print("calling stopping function")
+    eventdevport.set()
+    return "stopped event called"
 
 def getPingData(q: Queue):
 #    return f"pinging data from server. qsize: {q.qsize()}"
