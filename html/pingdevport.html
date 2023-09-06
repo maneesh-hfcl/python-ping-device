@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <title>Ping device with port#</title>
+        <script src="{{url_for('static', path='/js/jquery-3.6.4.min.js')}}"></script>
+        <script src="{{url_for('static', path='/js/script.js')}}"></script>
+        <link href="{{ url_for('static', path='/style/style.css') }}" rel="stylesheet">
+    </head>
+    <body>
+        <h3>
+            Network ping with port#
+        </h3>
+        <div style="margin:20px">
+            <button type="button" value="Start" title="Start" onclick="startPing()">Start</button>
+            <button type="button" value="Stop" title="Stop" onclick="stopPing()">Stop</button>
+        </div>
+        <div style="margin:20px">
+            <table id="tblData" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <th>Date</td>
+                    <th>IP/Machine Address</td>
+                    <th>Status</td>
+                    <th>Information</td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>
