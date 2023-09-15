@@ -1,4 +1,5 @@
 const sse_url = "http://127.0.0.1:8088/sse-ping"
+const sse_url_dev_port = "http://127.0.0.1:8088/sse-ping"
 var evtSource;
 
 $(document).ready(() => {

@@ -3,27 +3,88 @@
         <title>ICMP</title>
 
         <script src="{{url_for('static', path='/js/jquery-3.6.4.min.js')}}"></script>
+        <script src="{{url_for('static', path='/js/bootstrap5.min.js')}}"></script>
         <script src="{{url_for('static', path='/js/script.js')}}"></script>
+        <link href="{{ url_for('static', path='/style/bootstrap5.min.css') }}" rel="stylesheet">
         <link href="{{ url_for('static', path='/style/style.css') }}" rel="stylesheet">
+
         
     </head>
     <body>
-        <h3>
-            Network ping
-        </h3>
-        <div style="margin:20px">
-            <button type="button" value="Start" title="Start" onclick="pingDevice()">Start</button>
-            <button type="button" value="Stop" title="Stop" onclick="stopPing()">Stop</button>
+        <div class="container-fluid bg-secondary border-bottom border-dark border-3" >
+            <p class="p-head text-warning">  
+                Network ping
+            </p>
         </div>
-        <div style="margin:20px">
-            <table id="tblData" cellspacing="0" cellpadding="0" border="0">
-                <tr>
-                    <th>Date</td>
-                    <th>IP/Machine Address</td>
-                    <th>Status</td>
-                    <th>Information</td>
-                </tr>
-            </table>
+        <br/>
+        <div class="container">
+            <form method="post" action="">
+
+            <div class="card">
+                <div class="row card-body">
+                        <div class="col-sm-9">
+                            
+                            <div class="row">
+                                <div class="col">
+                                    DB Server
+                                    <input type="text" value="{{response.server}}" name="server" class="form-control form-control-sm bg-light" placeholder="Enter DB server IP" />
+                                </div>
+                                <div class="col">
+                                    Username
+                                    <input type="text" value="{{response.username}}" name="username" class="form-control form-control-sm bg-light" placeholder="Enter username" />
+                                </div>
+                                <div class="col">
+                                    Password
+                                    <input type="text" value="{{response.passwd}}" name="passwd" class="form-control form-control-sm bg-light" placeholder="Enter password" />
+                                </div>
+                                <div class="col">
+                                    Database name
+                                    <input type="text" value="{{response.dbname}}" name="dbname" class="form-control form-control-sm bg-light" placeholder="Enter Database name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-1" style="padding-top: 15px;">
+                            <button type="submit" style="font-size:12px;" class="btn btn-secondary btn-sm align-bottom" value="Save" title="Save">Save</button>
+                            <!-- <button type="button" class="btn btn-success btn-sm align-bottom" value="Start" title="Start" onclick="pingDevice()">Start</button> -->
+                            <!-- <button type="button" value="Stop" title="Stop" onclick="stopPing()">Stop</button> -->
+                        </div>
+
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-1">
+                        <button type="button" class="btn btn-success btn-lg align-bottom float-right" value="Start" title="Start" onclick="pingDevice($(this))">Start</button>
+                    </div>
+                </div>
+            </form>
+                {% if response_msg %}
+                <div style="text-align:right; padding-bottom: 5px; padding-left:10px;padding-right: 10px;">
+                    <span class="badge rounded-pill" style="font-size:11px; background-color:brown ">
+                        {{response_msg}}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            <br/>
+            
+            <div>
+                <table id="tblData" cellspacing="0" cellpadding="0" border="0">
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Name</th> 
+                        <th>IP/Machine Address</th>
+                        <th>Status</th>
+                        <!-- <th>Information</th> -->
+                    </tr>
+                </table>
+            </div>
+            <div id="divLoading" style="text-align: center;display: none">
+                <br/><br/><br/><br/>
+                <div class="spinner-border text-primary"></div>
+                <br/><br/>
+                <span class="spnLoading">Loading devices ... </span>
+                <br/><br/>
+            </div>
+            <br/><br/><br/>
         </div>
     </body>
 

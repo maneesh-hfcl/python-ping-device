@@ -1,6 +1,6 @@
 import uvicorn
 import asyncio
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, Form
 from sse_starlette.sse import EventSourceResponse
 from ping_server_pool import getAllIp
 from ping_dev_pool import getPingAllIpPort
@@ -11,9 +11,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import json
 from threading import Event
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-
+from Model.helper import  GetPingFromDBDevice,GetDBConfig, hlpr_GetDBInfo,hlpr_SaveDBConfig
 
 app = FastAPI()
 
@@ -31,6 +31,8 @@ app.add_middleware(
 
 eventping = Event()
 eventdevport = Event()
+response_msg = ""
+
 
 @app.get("/")
 async def read_root():
@@ -50,6 +52,17 @@ async def pingdevice():
     generatePing = getPingData(q)
     return EventSourceResponse(generatePing)
 
+
+@app.get("/sse-ping-db-device")
+async def pingdevice():
+    q = Queue()
+    pingthrd = Thread(target=GetPingFromDBDevice, args=(q,), name="sse-ping-db-device")
+    pingthrd.start()
+    print("calling sse-ping")
+    generatePing = getPingData(q)
+    return EventSourceResponse(generatePing)
+
+
 @app.get("/pobject")
 def pingobject():
     cserver =  CServer("127.1.1.1")
@@ -58,7 +71,11 @@ def pingobject():
 
 @app.get("/default/ping", response_class=HTMLResponse)
 async def read_htmlping(request: Request):
-    res = {"request": request}
+    global response_msg
+    server, username, passwd, dbname  = GetDBConfig()
+    response_data = {"server": server, "username": username, "passwd": passwd, "dbname": dbname}
+    res = {"request": request, "response": response_data, "response_msg": response_msg}
+    response_msg = ""
     return templates.TemplateResponse("pingdevice.html", res)
 
 
@@ -71,6 +88,7 @@ async def pingdevice():
     generatePing = getPingData(qdev)
     return EventSourceResponse(generatePing)
 
+
 @app.get("/default/pingdevport", response_class=HTMLResponse)
 async def read_htmlpingdevport(request: Request):
     res = {"request": request}
@@ -81,6 +99,34 @@ async def stoppingdev():
     print("calling stopping function")
     eventdevport.set()
     return "stopped event called"
+
+@app.get("/dbinfo")
+async def getdbinfo():
+    return hlpr_GetDBInfo()
+
+@app.post("/default/ping", response_class=RedirectResponse, status_code=302)
+async def savedbconfig(request:Request):
+    form_data = await request.form()
+    dbserver = form_data["server"]
+    dbusername = form_data["username"]
+    dbpassword = form_data["passwd"] 
+    dbname = form_data["dbname"]
+    #print(form_data["server"] + " : " + form_data["username"] + " : " + form_data["passwd"] + " : " + form_data["dbname"])
+    ret_val = hlpr_SaveDBConfig(dbserver, dbusername, dbpassword, dbname)
+    print(ret_val)
+    response = ""
+    if ret_val == "success":
+        response = "Database configuration successfully saved!"
+    else:
+        response = "Error! in saving the DB configuration"
+ #   server, username, passwd, dbname  = GetDBConfig()
+ #   response_data = {"server": server, "username": username, "passwd": passwd, "dbname": dbname}
+ #   res = {"response": response_data, "respnose_msg":response}
+    global response_msg
+    response_msg = response
+    return "/default/ping"
+
+
 
 def getPingData(q: Queue):
 #    return f"pinging data from server. qsize: {q.qsize()}"

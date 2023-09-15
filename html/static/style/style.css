@@ -6,7 +6,7 @@ body{
 
 #tblData{
     border:1px solid #bfbfbf;
-    width:75%    
+    width: 100%;
 }
 
 #tblData tr th{
@@ -41,12 +41,25 @@ body{
 
 }
 
-#tblData tr td:last-child{
-    width: 50%;
+#tblData tr td:nth-child(3), th:nth-child(3){
+    width: 40%;
 }
 
-#tblData tr td:nth-child(2){
+#tblData tr td:nth-child(3){
     font-size: 11px;
     font-weight: bold;
 
+}
+
+.p-head{
+    font-size:15px;
+    font-weight: bold;
+    padding:5px;
+    margin:0;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;    
+}
+
+.spnLoading{
+    color:gray;
+    font-size: 13;
 }
